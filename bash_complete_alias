@@ -4,6 +4,7 @@ function make-completion-wrapper-1 () {
 	local function_name="$2"
 	local arg_count=$(($#-3))
 	local comp_function_name="$(complete -pr $1|sed -e 's/^\(.* -F \)\([^ ]*\) [^ ]*$/\2/')"
+	[ -z "$comp_function_name" ] && return
 	shift 2
 	local function="
 		function $function_name {
@@ -20,6 +21,7 @@ function make-completion-wrapper-2 () {
 	local function_name="$1"
 	local alias_name="$2"
 	local comp_function_base="$(complete -pr $3|sed -e 's/^\(.* -F\)\( [^ ]*\) [^ ]*$/\1/')"
+	[ -z "$comp_function_name" ] && return
 	echo "$comp_function_base $function_name $alias_name"
 	eval "$comp_function_base $function_name $alias_name"
 }
@@ -30,7 +32,7 @@ alias | \
 	sed \
 		-e 's/^alias //' \
 		-e '/^\([^=]\+\)='\''\1 /d' \
-		-e "/'.*=/d" -e '/\$/d' \
+		-e '/[^0-9A-Za-z -]/d' \
 		-e h \
 		-e "s/.*='\([^ ]*\)\( .*\)'$/\1! \1\2/" \
 		-e 'y/ -!/__ /' -eG -e 's!\n[^=]*='\''\(.*\)'\''! \1!' \
