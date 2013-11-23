@@ -1,14 +1,17 @@
-#!/bin/bash
+#!/bin/bash ### source me ###
 
 function make-completion-wrapper-1 () {
 	local function_name="$2"
-	local arg_count=$(($#-3))
+	local arg_count=$(($#-2))
 	local comp_function_name="$(complete -pr $1|sed -e 's/^\(.* -F \)\([^ ]*\) [^ ]*$/\2/')"
 	[ -z "$comp_function_name" ] && return
 	shift 2
 	local function="
 		function $function_name {
 			((COMP_CWORD+=$arg_count))
+			echo $COMP_POINT
+			((COMP_POINT+=${#1}+1-${#2}))
+			echo $COMP_POINT
 			COMP_WORDS=( "$@" \${COMP_WORDS[@]:1} )
 			"$comp_function_name"
 			return 0
